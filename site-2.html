@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png+xml" href="favicon.png">
+  </head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Makena Sommer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#F4E1E2;
+    --pink-deep:#e6c6c8;
+    --white:#FFFFFF;
+    --off-white:#FBF7F7;
+    --black:#131110;
+    --charcoal:#4a4442;
+    --line: rgba(19,17,16,0.15);
+    --line-soft: rgba(19,17,16,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--pink);
+    color:var(--black);
+    font-family:'Jost',sans-serif;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--black); color:var(--pink);}
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  .wrap{ max-width:1200px; margin:0 auto; padding:0 6vw; }
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity 1s cubic-bezier(.16,.8,.24,1), transform 1s cubic-bezier(.16,.8,.24,1); }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- HEADER (name only, no nav) ---------- */
+  header.site-header{
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    text-align:center;
+    padding:26px 6vw;
+    background:rgba(244,225,226,.9);
+    backdrop-filter:blur(8px);
+  }
+  header.site-header a{
+    font-weight:500;
+    font-size:20px;
+    letter-spacing:.06em;
+  }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{ position:relative; padding:130px 0; }
+  section:first-of-type{ padding-top:190px; }
+  .section-head{ margin-bottom:56px; text-align:center; }
+  .section-head h2{ font-size:clamp(30px, 4.6vw, 48px); margin:0; font-weight:500; text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ---------- VENTURES ---------- */
+  .ventures-body{ max-width:640px; margin:0 auto; text-align:center; }
+  .ventures-body p{ font-size:clamp(18px, 2.2vw, 24px); line-height:1.6; font-weight:400; color:var(--black); }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:12px;
+    background:var(--black); color:var(--pink);
+    padding:17px 34px; font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600;
+    border:1px solid var(--black); border-radius:2px; transition:background .35s ease, color .35s ease;
+  }
+  .btn:hover{ background:transparent; color:var(--black); }
+
+  /* ---------- HILLS (book) ---------- */
+  .hills{ background:var(--black); color:var(--pink); text-align:center; }
+  .hills .section-head h2{ font-size:clamp(28px,4.6vw,52px); max-width:820px; margin:0 auto; }
+  .hills-subtitle{
+    margin-top:18px;
+    font-size:15px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--pink);
+    opacity:.75;
+  }
+  .hills .btn{ background:var(--pink); color:var(--black); border-color:var(--pink); margin-top:44px; }
+  .hills .btn:hover{ background:transparent; color:var(--pink); }
+
+  /* ---------- PRESS ---------- */
+  .press-logos{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:56px;
+  }
+  .press-logo{
+    height:22px;
+    width:auto;
+    filter:grayscale(100%);
+    opacity:.6;
+    transition:opacity .3s ease, filter .3s ease;
+  }
+  .press-logo:hover{
+    opacity:1;
+    filter:grayscale(0%);
+  }
+
+  /* ---------- PHOTO SHOWCASE (Editorial + Archive) ---------- */
+  /* One image per row, generous whitespace, consistent two-line caption */
+  .photo-grid{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:110px;
+    max-width:600px;
+    margin:0 auto;
+  }
+  .more-row{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:110px;
+    width:100%;
+    max-height:0; overflow:hidden; opacity:0;
+    transition:max-height 1s cubic-bezier(.16,.8,.24,1), opacity .6s ease, margin-top .8s cubic-bezier(.16,.8,.24,1);
+  }
+  .more-row.open{ max-height:4000px; opacity:1; margin-top:110px; }
+  .photo-tile{ width:100%; }
+  .photo-tile .frame{
+    width:100%; aspect-ratio:4/5; border-radius:2px; overflow:hidden;
+    background:var(--pink-deep);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .photo-tile .frame .ph{ display:none; font-size:13px; letter-spacing:.03em; color:rgba(19,17,16,.5); text-align:center; padding:0 24px; }
+  .photo-tile .frame.missing .ph{ display:block; }
+  .photo-tile .frame img{ width:100%; height:100%; object-fit:cover; }
+  .photo-tile .cap{ margin-top:22px; text-align:center; }
+  .photo-tile .cap .cap-title{
+    font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
+    color:var(--black); margin-bottom:6px;
+  }
+  .photo-tile .cap .cap-meta{
+    font-size:13px; color:var(--charcoal); letter-spacing:.02em; font-weight:300;
+  }
+
+  .expand-row{ display:flex; justify-content:center; margin-top:70px; }
+  .expand-btn{
+    width:50px; height:50px; border-radius:50%; border:1px solid var(--black); background:transparent;
+    position:relative; transition:background .3s ease;
+  }
+  .expand-btn:hover{ background:var(--black); }
+  .expand-btn .plus-icon{
+    position:absolute; top:50%; left:50%; width:18px; height:18px;
+    transform:translate(-50%,-50%); transition:transform .45s cubic-bezier(.16,.8,.24,1);
+  }
+  .expand-btn.open .plus-icon{ transform:translate(-50%,-50%) rotate(45deg); }
+  .expand-btn .plus-icon::before, .expand-btn .plus-icon::after{
+    content:''; position:absolute; background:var(--black); transition:background .3s ease;
+  }
+  .expand-btn .plus-icon::before{ top:50%; left:0; width:100%; height:1px; transform:translateY(-50%); }
+  .expand-btn .plus-icon::after{ left:50%; top:0; width:1px; height:100%; transform:translateX(-50%); }
+  .expand-btn:hover .plus-icon::before, .expand-btn:hover .plus-icon::after{ background:var(--pink); }
+
+  /* ---------- ABOUT ---------- */
+  .about-copy{ max-width:760px; margin:0 auto; }
+  .about-copy p{ font-size:17px; line-height:1.85; color:var(--black); margin:0 0 28px; }
+
+  /* ---------- CONTACT ---------- */
+  .contact-form{ max-width:640px; margin:0 auto; }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+  .field{ margin-bottom:30px; }
+  .field label{ display:block; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--charcoal); margin-bottom:10px; }
+  .field input, .field select, .field textarea{
+    width:100%; background:transparent; border:none; border-bottom:1px solid var(--line);
+    padding:10px 2px; font-family:'Jost',sans-serif; font-size:16px; color:var(--black);
+    transition:border-color .3s ease;
+  }
+  .field select{ appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='%23131110' d='M5 7l5 6 5-6z'/></svg>"); background-repeat:no-repeat; background-position:right 2px center; background-size:14px; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--black); }
+  .field textarea{ resize:vertical; min-height:110px; }
+  .form-actions{ text-align:center; margin-top:10px; }
+  .success-msg{ display:none; padding:22px 0; text-align:center; }
+  .success-msg.show{ display:block; }
+  .success-msg .msg{ font-size:22px; }
+
+  footer{ padding:70px 0 40px; text-align:center; }
+  footer .foot-chapters{
+    display:flex; justify-content:center; flex-wrap:wrap; gap:12px 34px; margin-bottom:34px;
+  }
+  footer .foot-chapters a{
+    font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:500; color:var(--black);
+    position:relative; padding-bottom:3px;
+  }
+  footer .foot-chapters a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--black);
+    transition:width .35s ease;
+  }
+  footer .foot-chapters a:hover::after{ width:100%; }
+  footer .copy{ font-size:11px; color:var(--black); }
+
+  /* ---------- MODAL ---------- */
+  .modal-veil{
+    position:fixed; inset:0; background:rgba(19,17,16,.55); backdrop-filter:blur(4px);
+    z-index:300; display:flex; align-items:center; justify-content:center; padding:24px;
+    opacity:0; pointer-events:none; transition:opacity .4s ease;
+  }
+  .modal-veil.open{ opacity:1; pointer-events:auto; }
+  .modal-card{
+    background:var(--pink); width:100%; max-width:420px; padding:48px 40px; position:relative; border-radius:2px;
+    border:1px solid var(--black);
+    transform:translateY(18px) scale(.98); transition:transform .4s cubic-bezier(.16,.8,.24,1);
+  }
+  .modal-veil.open .modal-card{ transform:translateY(0) scale(1); }
+  .modal-close{ position:absolute; top:18px; right:20px; background:none; border:none; font-size:20px; color:var(--black); }
+  .modal-card .field input{ color:var(--black); }
+
+  @media (max-width:900px){
+    .press-logos{ gap:36px; }
+    .press-logo{ height:18px; }
+    .photo-grid{ max-width:88vw; gap:80px; }
+    .more-row{ gap:80px; }
+    .more-row.open{ margin-top:80px; }
+    .field-row{ grid-template-columns:1fr; }
+    section{ padding:100px 0; }
+    section:first-of-type{ padding-top:150px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="#top">Makena Sommer</a>
+</header>
+
+<div id="top"></div>
+
+<!-- VENTURES -->
+<section id="ventures">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Ventures</h2>
+    </div>
+    <div class="ventures-body reveal">
+      <p>Makena is an active operator and investor across 3 sectors: Sustainability & Climate Consciousness, Women's Health (Performance, Bio-Optimization, Therapeutics), and Educational Equity. She is involved in Early-Stage-Series A and direct operations. Portfolio details available for qualified inquiries via the contact form below. </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- FROM THE HILLS WITH LOVE -->
+<section id="hills" class="hills">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>From the Hills, With Love</h2>
+      <p class="hills-subtitle">An Essay Collection by Makena Sommer</p>
+    </div>
+    <button class="btn reveal" id="openPreorder">Preorder Makena's Debut Book</button>
+  </div>
+</section>
+
+
+<!-- PRESS -->
+<section id="press">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Press</h2>
+    </div>
+    <div class="press-logos reveal">
+      <a href="https://shoutoutla.com/meet-makena-sommer-partington/" target="_blank" rel="noopener">
+        <img src="images/press-shoutoutla-logo.png" alt="Shoutout LA" class="press-logo">
+      </a>
+      <a href="https://boldjourney.com/meet-makena-sommer-partington/" target="_blank" rel="noopener">
+        <img src="images/press-boldjourney-logo.png" alt="Bold Journey" class="press-logo">
+      </a>
+      <a href="https://www.primadonnazine.com/issue-02/articles/forget-me-not" target="_blank" rel="noopener">
+        <img src="images/press-primadonna-logo.png" alt="Primadonna Zine" class="press-logo">
+      </a>
+    </div>
+  </div>
+</section>
+
+
+<!-- EDITORIAL -->
+<section id="editorial">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Editorial</h2>
+    </div>
+    <div class="photo-grid reveal" id="editorialGrid">
+      <div class="photo-tile">
+        <div class="frame"><img src="images/editorial-1.jpg" alt="Editorial 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+        <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+      </div>
+      <div class="photo-tile">
+        <div class="frame"><img src="images/editorial-2.jpg" alt="Editorial 2" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+        <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+      </div>
+      <div class="photo-tile">
+        <div class="frame"><img src="images/editorial-3.jpg" alt="Editorial 3" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+        <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+      </div>
+      <div class="more-row">
+        <div class="photo-tile">
+          <div class="frame"><img src="images/editorial-4.jpg" alt="Editorial 4" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+          <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/editorial-5.jpg" alt="Editorial 5" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+          <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/editorial-6.jpg" alt="Editorial 6" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+          <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="expand-row">
+      <button class="expand-btn" data-target="editorialGrid" aria-label="Show more editorial photos"><span class="plus-icon"></span></button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>About</h2>
+    </div>
+    <div class="about-copy reveal">
+      <p>Makena Sommer was raised in Los Angeles in a family shaped by art, design, and fashion; her grandfather in the interiors of Hollywood's most iconic properties, her late uncle as VP of Marketing at Burberry. Her own path started earlier than most, training under Soviet Olympic coach Vladi Sapozhkov. From childhood, she trained and often competed alongside athletes a decade her senior, simultaneously conducting research on the cardiac cycle in women's swimming performance. That early scientific curiosity carried into her Summer academic work at UCLA, where she studied East-West integrative medicine with a focus on the Female Athlete Triad and PCOS.</p>
+      <p>She brings early entrepreneurial experience building and scaling a consumer app globally, and currently operates and invests privately across women's health, women&rsquo;s performance, and sustainability.</p>
+      <p>In front of the camera, she has walked runway for Colley Designs and Phoebe Dragseth, shot editorial with Natalie Gordon, appeared in a music video for platinum-certified artist Gunna, and campaigned for Andr&eacute;a Bernholtz's swimwear label sold at Four Seasons Maui. Off camera, she advocated through hands-on work with the TGR Foundation, and for neglected equestrians in Central Park. Currently, for UCLA&rsquo;s Center for East West Integrative Medicine.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ARCHIVE & PORTFOLIO -->
+<section id="archive">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Archive &amp; Portfolio</h2>
+    </div>
+    <div class="photo-grid reveal" id="archiveGrid">
+      <div class="photo-tile">
+        <div class="frame"><img src="images/archive-1.jpg" alt="Archive 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+        <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+      </div>
+      <div class="photo-tile">
+        <div class="frame"><img src="images/archive-2.jpg" alt="Archive 2" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+        <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+      </div>
+      <div class="photo-tile">
+        <div class="frame"><img src="images/archive-3.jpg" alt="Archive 3" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+        <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+      </div>
+      <div class="more-row">
+        <div class="photo-tile">
+          <div class="frame"><img src="images/archive-4.jpg" alt="Archive 4" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+          <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/archive-5.jpg" alt="Archive 5" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+          <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/archive-6.jpg" alt="Archive 6" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+          <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="expand-row">
+      <button class="expand-btn" data-target="archiveGrid" aria-label="Show more archive photos"><span class="plus-icon"></span></button>
+    </div>
+  </div>
+</section>
+
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2>Contact</h2>
+    </div>
+    <div class="contact-form reveal">
+      <form id="contactForm">
+        <div class="field-row">
+          <div class="field"><label for="cFirst">First Name</label><input id="cFirst" type="text" required></div>
+          <div class="field"><label for="cLast">Last Name</label><input id="cLast" type="text" required></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="cAffil">Affiliation</label><input id="cAffil" type="text" required></div>
+          <div class="field"><label for="cEmail">Email Address</label><input id="cEmail" type="email" required></div>
+        </div>
+        <div class="field">
+          <label for="cReason">Reason for Contact</label>
+          <select id="cReason" required>
+            <option value="" disabled selected>Select one</option>
+            <option>Press Inquiry</option>
+            <option>Venture Inquiry</option>
+            <option>Booking / Casting</option>
+            <option>Philanthropy</option>
+            <option>General Inquiry</option>
+          </select>
+        </div>
+        <div class="field"><label for="cMessage">Message</label><textarea id="cMessage" required></textarea></div>
+        <div class="form-actions"><button type="submit" class="btn">Send Message</button></div>
+      </form>
+      <div class="success-msg" id="contactSuccess">
+        <div class="msg">Thank you, ; message delivered.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <nav class="foot-chapters">
+      <a href="#ventures">Ventures</a>
+      <a href="#hills">From the Hills, With Love</a>
+      <a href="#press">Press</a>
+      <a href="#editorial">Editorial</a>
+      <a href="#about">About</a>
+      <a href="#archive">Archive &amp; Portfolio</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="copy">&copy; 2026 Makena Sommer. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- PREORDER MODAL -->
+<div class="modal-veil" id="preorderVeil">
+  <div class="modal-card">
+    <button class="modal-close" id="closePreorder">&#10005;</button>
+    <form id="preorderForm">
+      <div class="field"><label for="pFirst">First Name</label><input id="pFirst" type="text" required></div>
+      <div class="field"><label for="pEmail">Email</label><input id="pEmail" type="email" required></div>
+      <button type="submit" class="btn" style="width:100%; justify-content:center;">Join Waitlist</button>
+    </form>
+    <div class="success-msg" id="preorderSuccess">
+      <div class="msg">You're on the list.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold:0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Photo grid expand-downward toggles
+  document.querySelectorAll('.expand-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const grid = document.getElementById(btn.dataset.target);
+      const moreRow = grid.querySelector('.more-row');
+      const isOpen = moreRow.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      if(!isOpen){
+        grid.scrollIntoView({ behavior:'smooth', block:'nearest' });
+      }
+    });
+  });
+
+  // Preorder modal
+  const veil = document.getElementById('preorderVeil');
+  document.getElementById('openPreorder').addEventListener('click', () => veil.classList.add('open'));
+  document.getElementById('closePreorder').addEventListener('click', () => veil.classList.remove('open'));
+  veil.addEventListener('click', (e) => { if(e.target === veil) veil.classList.remove('open'); });
+
+  document.getElementById('preorderForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('preorderForm').style.display = 'none';
+    document.getElementById('preorderSuccess').classList.add('show');
+  });
+
+  document.getElementById('contactForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('contactSuccess').classList.add('show');
+  });
+</script>
+
+</body>
+</html>
