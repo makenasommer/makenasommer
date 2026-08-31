@@ -105,36 +105,34 @@
     filter:grayscale(0%);
   }
 
-  /* ---------- PHOTO SHOWCASE (Editorial + Archive) ---------- */
-  /* One image per row, generous whitespace, consistent two-line caption */
+  /* ---------- PHOTO SHOWCASE (Editorial + Archive) — swipeable carousel ---------- */
+  .carousel-wrap{ position:relative; max-width:1100px; margin:0 auto; }
   .photo-grid{
     display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:110px;
-    max-width:600px;
-    margin:0 auto;
+    gap:28px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding:6px 6vw 26px;
+    margin:0 -6vw;
+    scrollbar-width:none;
   }
-  .more-row{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:110px;
-    width:100%;
-    max-height:0; overflow:hidden; opacity:0;
-    transition:max-height 1s cubic-bezier(.16,.8,.24,1), opacity .6s ease, margin-top .8s cubic-bezier(.16,.8,.24,1);
+  .photo-grid::-webkit-scrollbar{ display:none; }
+  .photo-tile{
+    flex:0 0 auto;
+    width:min(66vw, 320px);
+    scroll-snap-align:start;
   }
-  .more-row.open{ max-height:4000px; opacity:1; margin-top:110px; }
-  .photo-tile{ width:100%; }
   .photo-tile .frame{
     width:100%; aspect-ratio:4/5; border-radius:2px; overflow:hidden;
     background:var(--pink-deep);
     display:flex; align-items:center; justify-content:center; position:relative;
+    padding:16px;
   }
   .photo-tile .frame .ph{ display:none; font-size:13px; letter-spacing:.03em; color:rgba(19,17,16,.5); text-align:center; padding:0 24px; }
-  .photo-tile .frame.missing .ph{ display:block; }
-  .photo-tile .frame img{ width:100%; height:100%; object-fit:cover; }
-  .photo-tile .cap{ margin-top:22px; text-align:center; }
+  .photo-tile .frame.missing .ph{ display:block; padding:0 30px; }
+  .photo-tile .frame img{ width:100%; height:100%; object-fit:cover; border-radius:1px; }
+  .photo-tile .cap{ margin-top:20px; text-align:center; }
   .photo-tile .cap .cap-title{
     font-size:12px; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
     color:var(--black); margin-bottom:6px;
@@ -143,23 +141,24 @@
     font-size:13px; color:var(--charcoal); letter-spacing:.02em; font-weight:300;
   }
 
-  .expand-row{ display:flex; justify-content:center; margin-top:70px; }
-  .expand-btn{
-    width:50px; height:50px; border-radius:50%; border:1px solid var(--black); background:transparent;
-    position:relative; transition:background .3s ease;
+  .carousel-arrow{
+    position:absolute; top:calc(50% - 30px); transform:translateY(-50%);
+    width:46px; height:46px; border-radius:50%; border:1px solid var(--black); background:var(--pink);
+    display:flex; align-items:center; justify-content:center; transition:background .3s ease, opacity .3s ease;
+    z-index:5;
   }
-  .expand-btn:hover{ background:var(--black); }
-  .expand-btn .plus-icon{
-    position:absolute; top:50%; left:50%; width:18px; height:18px;
-    transform:translate(-50%,-50%); transition:transform .45s cubic-bezier(.16,.8,.24,1);
-  }
-  .expand-btn.open .plus-icon{ transform:translate(-50%,-50%) rotate(45deg); }
-  .expand-btn .plus-icon::before, .expand-btn .plus-icon::after{
-    content:''; position:absolute; background:var(--black); transition:background .3s ease;
-  }
-  .expand-btn .plus-icon::before{ top:50%; left:0; width:100%; height:1px; transform:translateY(-50%); }
-  .expand-btn .plus-icon::after{ left:50%; top:0; width:1px; height:100%; transform:translateX(-50%); }
-  .expand-btn:hover .plus-icon::before, .expand-btn:hover .plus-icon::after{ background:var(--pink); }
+  .carousel-arrow:hover{ background:var(--black); }
+  .carousel-arrow:hover svg path{ stroke:var(--pink); }
+  .carousel-arrow.prev{ left:-8px; }
+  .carousel-arrow.next{ right:-8px; }
+  .carousel-arrow[disabled]{ opacity:.25; pointer-events:none; }
+  .carousel-arrow svg{ width:16px; height:16px; }
+  .carousel-arrow svg path{ stroke:var(--black); transition:stroke .3s ease; }
+  @media (max-width:900px){ .carousel-arrow{ display:none; } }
+
+  .carousel-dots{ display:flex; justify-content:center; gap:8px; margin-top:8px; }
+  .carousel-dots span{ width:6px; height:6px; border-radius:50%; background:var(--line); transition:background .3s ease, transform .3s ease; }
+  .carousel-dots span.active{ background:var(--black); transform:scale(1.3); }
 
   /* ---------- ABOUT ---------- */
   .about-copy{ max-width:760px; margin:0 auto; }
@@ -217,9 +216,8 @@
   @media (max-width:900px){
     .press-logos{ gap:36px; }
     .press-logo{ height:18px; }
-    .photo-grid{ max-width:88vw; gap:80px; }
-    .more-row{ gap:80px; }
-    .more-row.open{ margin-top:80px; }
+    .photo-tile{ width:78vw; }
+    .photo-tile .frame{ padding:12px; }
     .field-row{ grid-template-columns:1fr; }
     section{ padding:100px 0; }
     section:first-of-type{ padding-top:150px; }
@@ -286,20 +284,21 @@
     <div class="section-head reveal">
       <h2>Editorial</h2>
     </div>
-    <div class="photo-grid reveal" id="editorialGrid">
-      <div class="photo-tile">
-        <div class="frame"><img src="images/editorial-1.jpg" alt="Editorial 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
-        <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
-      </div>
-      <div class="photo-tile">
-        <div class="frame"><img src="images/editorial-2.jpg" alt="Editorial 2" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
-        <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
-      </div>
-      <div class="photo-tile">
-        <div class="frame"><img src="images/editorial-3.jpg" alt="Editorial 3" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
-        <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
-      </div>
-      <div class="more-row">
+    <div class="carousel-wrap">
+      <button class="carousel-arrow prev" data-carousel="editorialGrid" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="photo-grid reveal" id="editorialGrid">
+        <div class="photo-tile">
+          <div class="frame"><img src="images/editorial-1.jpg" alt="Editorial 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+          <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/editorial-2.jpg" alt="Editorial 2" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+          <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/editorial-3.jpg" alt="Editorial 3" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
+          <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
+        </div>
         <div class="photo-tile">
           <div class="frame"><img src="images/editorial-4.jpg" alt="Editorial 4" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
           <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
@@ -313,10 +312,9 @@
           <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
         </div>
       </div>
+      <button class="carousel-arrow next" data-carousel="editorialGrid" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
-    <div class="expand-row">
-      <button class="expand-btn" data-target="editorialGrid" aria-label="Show more editorial photos"><span class="plus-icon"></span></button>
-    </div>
+    <div class="carousel-dots" data-dots-for="editorialGrid"></div>
   </div>
 </section>
 
@@ -342,20 +340,21 @@
     <div class="section-head reveal">
       <h2>Archive &amp; Portfolio</h2>
     </div>
-    <div class="photo-grid reveal" id="archiveGrid">
-      <div class="photo-tile">
-        <div class="frame"><img src="images/archive-1.jpg" alt="Archive 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
-        <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
-      </div>
-      <div class="photo-tile">
-        <div class="frame"><img src="images/archive-2.jpg" alt="Archive 2" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
-        <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
-      </div>
-      <div class="photo-tile">
-        <div class="frame"><img src="images/archive-3.jpg" alt="Archive 3" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
-        <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
-      </div>
-      <div class="more-row">
+    <div class="carousel-wrap">
+      <button class="carousel-arrow prev" data-carousel="archiveGrid" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="photo-grid reveal" id="archiveGrid">
+        <div class="photo-tile">
+          <div class="frame"><img src="images/archive-1.jpg" alt="Archive 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+          <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/archive-2.jpg" alt="Archive 2" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+          <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+        </div>
+        <div class="photo-tile">
+          <div class="frame"><img src="images/archive-3.jpg" alt="Archive 3" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
+          <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
+        </div>
         <div class="photo-tile">
           <div class="frame"><img src="images/archive-4.jpg" alt="Archive 4" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
           <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
@@ -369,10 +368,9 @@
           <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
         </div>
       </div>
+      <button class="carousel-arrow next" data-carousel="archiveGrid" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
-    <div class="expand-row">
-      <button class="expand-btn" data-target="archiveGrid" aria-label="Show more archive photos"><span class="plus-icon"></span></button>
-    </div>
+    <div class="carousel-dots" data-dots-for="archiveGrid"></div>
   </div>
 </section>
 
@@ -452,17 +450,36 @@
   }, { threshold:0.15 });
   revealEls.forEach(el => io.observe(el));
 
-  // Photo grid expand-downward toggles
-  document.querySelectorAll('.expand-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const grid = document.getElementById(btn.dataset.target);
-      const moreRow = grid.querySelector('.more-row');
-      const isOpen = moreRow.classList.toggle('open');
-      btn.classList.toggle('open', isOpen);
-      if(!isOpen){
-        grid.scrollIntoView({ behavior:'smooth', block:'nearest' });
-      }
+  // Photo carousels: arrow buttons + dot indicators + edge-disable
+  document.querySelectorAll('.photo-grid').forEach(grid => {
+    const tiles = Array.from(grid.querySelectorAll('.photo-tile'));
+    const prevBtn = document.querySelector('.carousel-arrow.prev[data-carousel="' + grid.id + '"]');
+    const nextBtn = document.querySelector('.carousel-arrow.next[data-carousel="' + grid.id + '"]');
+    const dotsWrap = document.querySelector('.carousel-dots[data-dots-for="' + grid.id + '"]');
+
+    tiles.forEach((t, i) => {
+      const dot = document.createElement('span');
+      if(i === 0) dot.classList.add('active');
+      dotsWrap.appendChild(dot);
     });
+    const dots = Array.from(dotsWrap.children);
+
+    function tileWidth(){ return tiles[0].getBoundingClientRect().width + 28; }
+
+    function updateState(){
+      const maxScroll = grid.scrollWidth - grid.clientWidth;
+      if(prevBtn) prevBtn.disabled = grid.scrollLeft <= 4;
+      if(nextBtn) nextBtn.disabled = grid.scrollLeft >= maxScroll - 4;
+      const idx = Math.round(grid.scrollLeft / tileWidth());
+      dots.forEach((d, i) => d.classList.toggle('active', i === Math.min(idx, dots.length - 1)));
+    }
+
+    if(prevBtn) prevBtn.addEventListener('click', () => grid.scrollBy({ left:-tileWidth(), behavior:'smooth' }));
+    if(nextBtn) nextBtn.addEventListener('click', () => grid.scrollBy({ left:tileWidth(), behavior:'smooth' }));
+    grid.addEventListener('scroll', () => window.requestAnimationFrame(updateState), { passive:true });
+    dots.forEach((d, i) => d.addEventListener('click', () => grid.scrollTo({ left:i * tileWidth(), behavior:'smooth' })));
+    window.addEventListener('resize', updateState);
+    updateState();
   });
 
   // Preorder modal
