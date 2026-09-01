@@ -116,6 +116,7 @@
     padding:6px 6vw 26px;
     margin:0 -6vw;
     scrollbar-width:none;
+    cursor:grab;
   }
   .photo-grid::-webkit-scrollbar{ display:none; }
   .photo-tile{
@@ -140,21 +141,6 @@
   .photo-tile .cap .cap-meta{
     font-size:13px; color:var(--charcoal); letter-spacing:.02em; font-weight:300;
   }
-
-  .carousel-arrow{
-    position:absolute; top:calc(50% - 30px); transform:translateY(-50%);
-    width:46px; height:46px; border-radius:50%; border:1px solid var(--black); background:var(--pink);
-    display:flex; align-items:center; justify-content:center; transition:background .3s ease, opacity .3s ease;
-    z-index:5;
-  }
-  .carousel-arrow:hover{ background:var(--black); }
-  .carousel-arrow:hover svg path{ stroke:var(--pink); }
-  .carousel-arrow.prev{ left:-8px; }
-  .carousel-arrow.next{ right:-8px; }
-  .carousel-arrow[disabled]{ opacity:.25; pointer-events:none; }
-  .carousel-arrow svg{ width:16px; height:16px; }
-  .carousel-arrow svg path{ stroke:var(--black); transition:stroke .3s ease; }
-  @media (max-width:900px){ .carousel-arrow{ display:none; } }
 
   .carousel-dots{ display:flex; justify-content:center; gap:8px; margin-top:8px; }
   .carousel-dots span{ width:6px; height:6px; border-radius:50%; background:var(--line); transition:background .3s ease, transform .3s ease; }
@@ -285,7 +271,6 @@
       <h2>Editorial</h2>
     </div>
     <div class="carousel-wrap">
-      <button class="carousel-arrow prev" data-carousel="editorialGrid" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <div class="photo-grid reveal" id="editorialGrid">
         <div class="photo-tile">
           <div class="frame"><img src="images/editorial-1.jpg" alt="Editorial 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
@@ -312,7 +297,6 @@
           <div class="cap"><div class="cap-title">[Shoot Name]</div><div class="cap-meta">[Photographer] &middot; [Publication] &middot; [Year]</div></div>
         </div>
       </div>
-      <button class="carousel-arrow next" data-carousel="editorialGrid" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     <div class="carousel-dots" data-dots-for="editorialGrid"></div>
   </div>
@@ -341,7 +325,6 @@
       <h2>Archive &amp; Portfolio</h2>
     </div>
     <div class="carousel-wrap">
-      <button class="carousel-arrow prev" data-carousel="archiveGrid" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <div class="photo-grid reveal" id="archiveGrid">
         <div class="photo-tile">
           <div class="frame"><img src="images/archive-1.jpg" alt="Archive 1" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
@@ -368,7 +351,6 @@
           <div class="cap"><div class="cap-title">[Project / Brand]</div><div class="cap-meta">[Role] &middot; [Year]</div></div>
         </div>
       </div>
-      <button class="carousel-arrow next" data-carousel="archiveGrid" aria-label="Next"><svg viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
     <div class="carousel-dots" data-dots-for="archiveGrid"></div>
   </div>
@@ -450,11 +432,9 @@
   }, { threshold:0.15 });
   revealEls.forEach(el => io.observe(el));
 
-  // Photo carousels: arrow buttons + dot indicators + edge-disable
+  // Photo carousels: free swipe/scroll + dot indicators + click-drag for mouse/trackpad
   document.querySelectorAll('.photo-grid').forEach(grid => {
     const tiles = Array.from(grid.querySelectorAll('.photo-tile'));
-    const prevBtn = document.querySelector('.carousel-arrow.prev[data-carousel="' + grid.id + '"]');
-    const nextBtn = document.querySelector('.carousel-arrow.next[data-carousel="' + grid.id + '"]');
     const dotsWrap = document.querySelector('.carousel-dots[data-dots-for="' + grid.id + '"]');
 
     tiles.forEach((t, i) => {
@@ -467,19 +447,32 @@
     function tileWidth(){ return tiles[0].getBoundingClientRect().width + 28; }
 
     function updateState(){
-      const maxScroll = grid.scrollWidth - grid.clientWidth;
-      if(prevBtn) prevBtn.disabled = grid.scrollLeft <= 4;
-      if(nextBtn) nextBtn.disabled = grid.scrollLeft >= maxScroll - 4;
       const idx = Math.round(grid.scrollLeft / tileWidth());
       dots.forEach((d, i) => d.classList.toggle('active', i === Math.min(idx, dots.length - 1)));
     }
 
-    if(prevBtn) prevBtn.addEventListener('click', () => grid.scrollBy({ left:-tileWidth(), behavior:'smooth' }));
-    if(nextBtn) nextBtn.addEventListener('click', () => grid.scrollBy({ left:tileWidth(), behavior:'smooth' }));
     grid.addEventListener('scroll', () => window.requestAnimationFrame(updateState), { passive:true });
     dots.forEach((d, i) => d.addEventListener('click', () => grid.scrollTo({ left:i * tileWidth(), behavior:'smooth' })));
     window.addEventListener('resize', updateState);
     updateState();
+
+    // click-and-drag scrolling for mouse/trackpad users (touch already works natively)
+    let isDown = false, startX = 0, startScroll = 0, dragged = false;
+    grid.addEventListener('mousedown', (e) => {
+      isDown = true; dragged = false;
+      startX = e.pageX; startScroll = grid.scrollLeft;
+      grid.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mouseup', () => { isDown = false; grid.style.cursor = ''; });
+    grid.addEventListener('mouseleave', () => { isDown = false; grid.style.cursor = ''; });
+    grid.addEventListener('mousemove', (e) => {
+      if(!isDown) return;
+      e.preventDefault();
+      const dx = e.pageX - startX;
+      if(Math.abs(dx) > 4) dragged = true;
+      grid.scrollLeft = startScroll - dx;
+    });
+    grid.addEventListener('click', (e) => { if(dragged){ e.preventDefault(); e.stopPropagation(); } }, true);
   });
 
   // Preorder modal
