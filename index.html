@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png+xml" href="favicon.png">
-  </head>
+<link rel="icon" type="image/png+xml" href="favicon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Makena Sommer</title>
@@ -70,6 +69,7 @@
     border:1px solid var(--black); border-radius:2px; transition:background .35s ease, color .35s ease;
   }
   .btn:hover{ background:transparent; color:var(--black); }
+  .btn:disabled{ opacity:.6; cursor:default; }
 
   /* ---------- HILLS (book) ---------- */
   .hills{ background:var(--black); color:var(--pink); text-align:center; }
@@ -229,7 +229,7 @@
       <h2>Ventures</h2>
     </div>
     <div class="ventures-body reveal">
-      <p>Makena is an active operator across 3 sectors: Sustainability & Climate Consciousness, Women's Health (Performance, Bio-Optimization, Therapeutics), and Design. She is involved in Early-Stage-Series A and direct operations. Portfolio details available for qualified inquiries via the contact form below. </p>
+      <p>Makena is an active operator across 3 sectors: Sustainability &amp; Climate Consciousness, Women's Health (Performance, Bio-Optimization, Therapeutics), and Design. She is involved in Early-Stage-Series A and direct operations. Portfolio details available for qualified inquiries via the contact form below. </p>
     </div>
   </div>
 </section>
@@ -276,7 +276,6 @@
     </div>
     <div class="carousel-wrap">
       <div class="photo-grid reveal" id="editorialGrid">
-       <!-- EDITORIAL -->
 <div class="photo-tile">
   <div class="frame"><img src="editorial/parsons.jpeg" alt="Editorial" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Photo to be added</span></div>
   <p class="photo-credit">Parsons Studios </p>
@@ -334,7 +333,6 @@
     </div>
     <div class="carousel-wrap">
       <div class="photo-grid reveal" id="archiveGrid">
-       <!-- ARCHIVE -->
 <div class="photo-tile">
   <div class="frame"><img src="archive/ecomm.JPG" alt="Archive" style="object-position:right center;" onerror="this.style.display='none'; this.parentElement.classList.add('missing');"><span class="ph">Image to be added</span></div>
   <p class="photo-credit">Devin Carbough </p>
@@ -399,7 +397,7 @@
         <div class="form-actions"><button type="submit" class="btn">Send Message</button></div>
       </form>
       <div class="success-msg" id="contactSuccess">
-        <div class="msg">Thank you, ; message delivered.</div>
+        <div class="msg">Thank you. Message delivered.</div>
       </div>
     </div>
   </div>
@@ -445,7 +443,6 @@
 
   // Photo carousels: free swipe/scroll + click-drag for mouse/trackpad (no dot indicators)
   document.querySelectorAll('.photo-grid').forEach(grid => {
-    // click-and-drag scrolling for mouse/trackpad users (touch already works natively)
     let isDown = false, startX = 0, startScroll = 0, dragged = false;
     grid.addEventListener('mousedown', (e) => {
       isDown = true; dragged = false;
@@ -470,18 +467,65 @@
   document.getElementById('closePreorder').addEventListener('click', () => veil.classList.remove('open'));
   veil.addEventListener('click', (e) => { if(e.target === veil) veil.classList.remove('open'); });
 
-  document.getElementById('preorderForm').addEventListener('submit', (e) => {
+  // Formspree
+  const FORM_URL = 'https://formspree.io/f/xljbbogj';
+
+  async function sendToFormspree(payload) {
+    const res = await fetch(FORM_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Failed');
+  }
+
+  // Preorder waitlist
+  document.getElementById('preorderForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    document.getElementById('preorderForm').style.display = 'none';
-    document.getElementById('preorderSuccess').classList.add('show');
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Joining...';
+    try {
+      await sendToFormspree({
+        source: 'Book Waitlist',
+        name: document.getElementById('pFirst').value,
+        email: document.getElementById('pEmail').value
+      });
+      e.target.style.display = 'none';
+      document.getElementById('preorderSuccess').classList.add('show');
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Join Waitlist';
+      alert('Something went wrong. Please try again.');
+    }
   });
 
-  document.getElementById('contactForm').addEventListener('submit', (e) => {
+  // Contact form
+  document.getElementById('contactForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    document.getElementById('contactForm').style.display = 'none';
-    document.getElementById('contactSuccess').classList.add('show');
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    const first = document.getElementById('cFirst').value;
+    try {
+      await sendToFormspree({
+        source: 'Contact Form',
+        name: first + ' ' + document.getElementById('cLast').value,
+        affiliation: document.getElementById('cAffil').value,
+        email: document.getElementById('cEmail').value,
+        reason: document.getElementById('cReason').value,
+        message: document.getElementById('cMessage').value
+      });
+      e.target.style.display = 'none';
+      document.querySelector('#contactSuccess .msg').textContent = 'Thank you, ' + first + '. Message delivered.';
+      document.getElementById('contactSuccess').classList.add('show');
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Send Message';
+      alert('Something went wrong. Please try again.');
+    }
   });
 </script>
 
 </body>
-</html></html>
+</html>
